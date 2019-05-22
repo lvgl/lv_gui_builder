@@ -1,0 +1,3 @@
+[submodule "pylvgl"]
+	path = pylvgl
+	url = git@github.com:AGlass0fMilk/pylvgl.git
