@@ -28,7 +28,7 @@
          </attribute>
          <layout class="QGridLayout" name="gridLayout_2">
           <item row="0" column="0">
-           <widget class="QGraphicsView" name="LVGLSimWindow">
+           <widget class="LVGLSimulator" name="LVGLSimWindow">
             <property name="verticalScrollBarPolicy">
              <enum>Qt::ScrollBarAlwaysOff</enum>
             </property>
@@ -185,6 +185,12 @@
     <layout class="QGridLayout" name="gridLayout_4">
      <item row="0" column="0">
       <widget class="QTreeWidget" name="treeWidget_2">
+       <property name="minimumSize">
+        <size>
+         <width>400</width>
+         <height>0</height>
+        </size>
+       </property>
        <column>
         <property name="text">
          <string>Property</string>
@@ -230,10 +236,21 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>286</width>
+            <width>257</width>
             <height>921</height>
            </rect>
           </property>
+          <layout class="QGridLayout" name="gridLayout_7">
+           <item row="0" column="0">
+            <widget class="QListWidget" name="listWidget">
+             <property name="font">
+              <font>
+               <pointsize>12</pointsize>
+              </font>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </widget>
         </widget>
        </item>
@@ -290,6 +307,13 @@
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>LVGLSimulator</class>
+   <extends>QGraphicsView</extends>
+   <header>LVGLSimulator.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
