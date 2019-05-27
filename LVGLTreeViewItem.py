@@ -2,7 +2,7 @@
 
 from PyQt5.QtWidgets import QTreeWidgetItem
 import lvgl
-from utils import get_full_class_name
+from utils import get_full_class_name, children_of, address_of
 
 
 class LVGLTreeViewItem(QTreeWidgetItem):
@@ -31,24 +31,20 @@ def regenerate_lv_treeview(treeview):
     treeview.clear()
 
     # Recursive walk of LVGL object tree
-    # @param[in] lv_obj LVGL object to walk children of
-    # @param[in] parent_tv_item Parent treeview item of this lv_obj
-    def walk_obj_children(child_lv_obj, parent_tv_item):
+    # Map lv parent objects to treeview parent objects
+    lv_to_tv_parent_map = {address_of(None): treeview}
 
-        child_tv_item = LVGLTreeViewItem(child_lv_obj, parent_tv_item)
+    for child in children_of(lvgl.scr_act()):
+        child_tv_item  = LVGLTreeViewItem(child, lv_to_tv_parent_map[address_of(child.get_parent())])
+        # Since the actual treeview object is unhashable
+        # use the object's address as its key
+        lv_to_tv_parent_map[address_of(child)] = child_tv_item
 
-        # This is the first item, kind of cheating using python here :-)
-        if parent_tv_item == treeview:
+        if child.get_parent() is None:
             child_tv_item.setText(0, "screen")
         else:
-            child_tv_item.setText(0, str(hex(id(child_lv_obj))))
+            child_tv_item.setText(0, str(hex(id(child))))
 
-        child_tv_item.setText(1, get_full_class_name(child_lv_obj))
+        child_tv_item.setText(1, get_full_class_name(child))
 
         child_tv_item.setExpanded(True)
-
-        for child in child_lv_obj.get_children():
-            walk_obj_children(child, child_tv_item)
-
-    root = lvgl.scr_act()
-    walk_obj_children(root, treeview)
