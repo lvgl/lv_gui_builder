@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 import lvgl
-from utils import address_of, children_of, get_absolute_position
+from utils import address_of, children_of, get_absolute_position, get_full_class_name
 
 
 # Returns a list of lvgl objects under coordinates at x,y
@@ -74,11 +74,41 @@ class LVGLSimulator(QGraphicsView):
         selected_item = self.select_object(get_objects_under_coords(event.pos().x(), event.pos().y()))
 
         # Create a box around the selected item (if not None)
-        if selected_item:
+        # Now handled by associated treeview selection change event handler
+        #self.highlight_selected(selected_item)
+
+        # Call the application handler
+        if self.new_selection_cb:
+            self.new_selection_cb(selected_item)
+
+    def mouseDoubleClickEvent(self, event):
+        #TODO refactor this to get rid of duplication of mousePressEvent code
+
+        # Find out which object(s) were focused by that click and select one
+        selected_item = self.select_object(get_objects_under_coords(event.pos().x(), event.pos().y()), True)
+
+        # Create a box around the selected item (if not None)
+        # Now handled by associated treeview selection change event handler
+        #self.highlight_selected(selected_item)
+
+        # Call the application handler
+        if self.new_selection_cb:
+            self.new_selection_cb(selected_item)
+
+    def mouseReleaseEvent(self, event):
+        lvgl.send_mouse_event(event.pos().x(), event.pos().y(), False)
+
+    def mouseMoveEvent(self, event):
+        lvgl.send_mouse_event(event.pos().x(), event.pos().y(), False)
+
+    #@param[in] lvgl object to select
+    def highlight_selected(self, selected_item):
+        # Create a box around the selected item (if not None)
+        if selected_item and selected_item is not lvgl.scr_act():
             if self.selection_box:
                 self.scene.removeItem(self.selection_box)
                 self.selection_box = None
-            #TODO - access cached values on corresponding treeview item
+            # TODO - access cached values on corresponding treeview item
             lv_x, lv_y = get_absolute_position(selected_item)
             bounding_box = QRectF(lv_x, lv_y, selected_item.get_width(), selected_item.get_height())
             self.selection_box = self.scene.addRect(bounding_box, QPen(Qt.red, 5), QBrush())
@@ -87,18 +117,6 @@ class LVGLSimulator(QGraphicsView):
                 self.scene.removeItem(self.selection_box)
                 self.selection_box = None
 
-        # Call the application handler
-        if self.new_selection_cb:
-            self.new_selection_cb(selected_item)
-
-    def mouseDoubleClickEvent(self, event):
-        pass
-
-    def mouseReleaseEvent(self, event):
-        lvgl.send_mouse_event(event.pos().x(), event.pos().y(), False)
-
-    def mouseMoveEvent(self, event):
-        lvgl.send_mouse_event(event.pos().x(), event.pos().y(), False)
 
     # Encapsulates logic for item selection
     # for now it just returns the first item in the list of possible objects
@@ -106,4 +124,26 @@ class LVGLSimulator(QGraphicsView):
         if len(obj_list) == 0:
             return None
 
-        return obj_list[0]
+        # TODO this algorithm (below) works for now, but should be revisited in the future
+
+        # If it wasn't a double click, just return the first object
+        if not double_clicked or len(obj_list) is 1:
+            return obj_list[0]
+        else:
+            # Prioritize label objects
+            for o in obj_list:
+                if "Label" in get_full_class_name(o):
+                    return o
+
+            # If no labels were found, return the second object
+            return obj_list[1]
+
+    # Setter for application to set selected lvgl object
+    #@param[in] selected_item LVGL object that should be highlighted
+    def set_selected(self, selected_item):
+        self.highlight_selected(selected_item)
+
+    # Application callback to be executed when a new lvgl object is selected
+    def set_new_selection_cb(self, cb):
+        self.new_selection_cb = cb
+
