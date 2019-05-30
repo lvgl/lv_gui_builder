@@ -38,7 +38,6 @@ def get_lv_obj_preview(lv_type):
 
 
 def get_editable_properties(lv_obj):
-    editable = []
 
     def get_arg_list(fn):
         signature = inspect.getdoc(fn)
@@ -56,15 +55,48 @@ def get_editable_properties(lv_obj):
         arg_list = arg_list[1:] # Remove the first element (always lv_obj_t*)
         return arg_list
 
+    # Get the getters
+    members = inspect.getmembers(lv_obj)
+    getters = {}
+    setters = {}
+    for name, fn in members:
+        if 'get' in name and '__' not in name: # Remove private functions
+            if name not in ignored_functions:
+                getters[name] = fn
+
+    # Get the setters
     for name, fn in inspect.getmembers(lv_obj):
         if 'set' in name and '__' not in name:  # Remove private functions
             if name not in ignored_functions:
-                # Unimplemented functions may not have an arg list, ignore them
-                arg_list = get_arg_list(fn)
-                if arg_list:
-                    editable.append((name, arg_list))
+                setters[name] = fn
 
-    return editable
+    # Find the properties with getters and setters
+    larger_list = getters
+    smaller_list = setters
+    prefix = "get_"
+    other_prefix = "set_"
+    if len(setters) > len(getters):
+        larger_list = setters
+        smaller_list = getters
+        prefix = "set_"
+        other_prefix = "get_"
+
+    common = {}
+    for name, fn in larger_list.items():
+        # Remove the prefix
+        prop_name = name.replace(prefix, "")
+        # Check if it's in the other list
+        for other_name, other_fn in smaller_list.items():
+            # Found a property with a getter and setter
+            if (other_prefix + prop_name) == other_name:
+                getter = getters["get_"+prop_name]
+                setter = setters["set_"+prop_name]
+                arg_list = get_arg_list(setter)
+                # Unimplemented functions may not have an arg list, ignore them
+                if arg_list:
+                    common[prop_name] = (getter, setter, arg_list)
+
+    return common
 
 
 
@@ -72,3 +104,12 @@ if __name__ == "__main__":
     lv_types = list_lv_object_types()
     for t in lv_types:
         print(t)
+
+    btn1 = lvgl.Btn(lvgl.scr_act())
+    props = get_editable_properties(btn1)
+    for key in props:
+        print(key)
+        getter,setter,arg_list = props[key]
+        print("\t"+str(getter))
+        print("\t"+str(setter))
+        print("\t"+str(arg_list))

@@ -35,8 +35,14 @@ def main():
 
         properties = get_editable_properties(lvgl_obj)
         for p in properties:
+            getter, setter, arg_list = properties[p]
             tv_item = QTreeWidgetItem(window.property_tree)
-            tv_item.setText(0, p[0].replace("set_", ""))
+            tv_item.setText(0, p)
+            try:
+                tv_item.setText(1, str(getter()))
+            except (NotImplementedError, TypeError) as e:
+                # Catch unimplemented functions and hide them
+                tv_item.setHidden(True)
 
     # Called when a new lvgl object is selected in the LVGLSimulator view
     def new_selection_cb(selected_lvgl_obj):
