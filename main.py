@@ -7,7 +7,10 @@ import lvgl
 from introspector import list_lv_object_types, get_editable_properties
 from LVGLTreeViewItem import regenerate_lv_treeview
 from utils import iter_tree_widget
+import propertywidgets
 
+import faulthandler
+faulthandler.enable()
 
 class LVGLBuilderApp(QMainWindow, lvgl_builder.Ui_MainWindow):
     def __init__(self, parent=None):
@@ -36,13 +39,23 @@ def main():
         properties = get_editable_properties(lvgl_obj)
         for p in properties:
             getter, setter, arg_list = properties[p]
-            tv_item = QTreeWidgetItem(window.property_tree)
+            tv_item = QTreeWidgetItem()
+            window.property_tree.addTopLevelItem(tv_item)
             tv_item.setText(0, p)
             try:
-                tv_item.setText(1, str(getter()))
+                current_val = getter()
             except (NotImplementedError, TypeError) as e:
                 # Catch unimplemented functions and hide them
                 tv_item.setHidden(True)
+
+            property_type = arg_list[0]
+            # Create the associated widget for
+            # editing this property type
+            print("{} - {}".format(p, arg_list))
+            ctor = propertywidgets.get_associated_widget(property_type)
+            property_widget = ctor(setter, current_val, None)
+            window.property_tree.setItemWidget(tv_item, 1, property_widget)
+
 
     # Called when a new lvgl object is selected in the LVGLSimulator view
     def new_selection_cb(selected_lvgl_obj):

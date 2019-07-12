@@ -51,7 +51,18 @@ def get_editable_properties(lv_obj):
         arg_list = signature[:-1].split(',')
         for i, arg in enumerate(arg_list):
             arg = arg.strip()
-            arg_list[i] = arg.split(' ')[0] # get rid of the variable name
+            split_args = arg.split(' ')
+            arg_type = split_args[0] # Typically, the arg type will be the first element here
+            arg_name = split_args[1]
+            if 'const' in arg_type:  # 'const' may shift that to the second element
+                arg_type = split_args[1]
+                arg_name = split_args[2]
+
+            if '*' in arg_name: # Retain the pointer *
+                arg_type += '*'
+
+            arg_list[i] = arg_type
+
         arg_list = arg_list[1:] # Remove the first element (always lv_obj_t*)
         return arg_list
 
