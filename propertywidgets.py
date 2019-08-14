@@ -49,8 +49,8 @@ class IntegerLineWidget(BasicLineWidget):
     def update_linked_property(self, new_value):
         try:
             self.setter(int(new_value))
-        except (TypeError, ValueError) as e:
-            pass
+        except (TypeError, ValueError, OverflowError) as e:
+            print("warning - update_linked_property - suppressed exception: {}".format(e))
 
 
 class EightBitLineWidget(IntegerLineWidget):
@@ -63,7 +63,8 @@ class SixteenBitLineWidget(IntegerLineWidget):
 
     def __init__(self, property_setter, initial_value, parent=None):
         BasicLineWidget.__init__(self, property_setter, initial_value, parent)
-        self.setValidator(QtGui.QIntValidator(0, 65535))
+        # Bug that treats u16_t as signed 16... limit to signed range
+        self.setValidator(QtGui.QIntValidator(0, 32767))
 
 class BoolCheckboxWidget(BasePropertyWidget, QtWidgets.QCheckBox):
 
@@ -97,7 +98,8 @@ def get_associated_widget(type_name):
 property_widget_map = {
     'bool': BoolCheckboxWidget,
     'char*': BasicLineWidget,
-    'lv_coord_t': IntegerLineWidget,
+    'lv_coord_t': SixteenBitLineWidget,
     'uint8_t': EightBitLineWidget,
-    'uint16_t': SixteenBitLineWidget
+    'uint16_t': SixteenBitLineWidget,
+    'lv_opa_t': EightBitLineWidget
 }

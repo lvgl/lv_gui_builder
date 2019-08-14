@@ -14,8 +14,8 @@ class LVGLTreeView(QTreeWidget):
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Delete:
             #self.takeTopLevelItem(self.indexOfTopLevelItem(
-            print("deleting object...")
-            self.itemFromIndex(self.currentIndex()).get_lv_obj().del_()
+            self.selectedItems()[0].get_lv_obj().del_()
+            #self.itemFromIndex(self.currentIndex()).get_lv_obj().del_()
             regenerate_lv_treeview(self)
             
         super().keyPressEvent(event)

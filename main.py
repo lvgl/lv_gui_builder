@@ -51,7 +51,7 @@ def main():
             property_type = arg_list[0]
             # Create the associated widget for
             # editing this property type
-            #print("{} - {}".format(p, arg_list))
+            print("{} - {}".format(p, arg_list))
             ctor = propertywidgets.get_associated_widget(property_type)
             property_widget = ctor(setter, current_val, None)
             window.property_tree.setItemWidget(tv_item, 1, property_widget)
@@ -64,6 +64,8 @@ def main():
         for item in iter_tree_widget(window.object_tree):
             if item.get_lv_obj() is selected_lvgl_obj:
                 item.setSelected(True)
+                # Set the focus to the lv object treeview to capture keyboard events
+                window.object_tree.setFocus()
 
     # Called when an item is selected in the treeview
     # Since the above new_selection_cb modifies the selection
