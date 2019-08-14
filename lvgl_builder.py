@@ -2,11 +2,13 @@
 
 # Form implementation generated from reading ui file 'lvgl-builder.ui'
 #
-# Created by: PyQt5 UI code generator 5.9.2
+# Created by: PyQt5 UI code generator 5.13.0
 #
 # WARNING! All changes made in this file will be lost!
 
+
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -72,7 +74,7 @@ class Ui_MainWindow(object):
         self.dockWidgetContents.setObjectName("dockWidgetContents")
         self.gridLayout_3 = QtWidgets.QGridLayout(self.dockWidgetContents)
         self.gridLayout_3.setObjectName("gridLayout_3")
-        self.object_tree = QtWidgets.QTreeWidget(self.dockWidgetContents)
+        self.object_tree = LVGLTreeView(self.dockWidgetContents)
         self.object_tree.setObjectName("object_tree")
         self.gridLayout_3.addWidget(self.object_tree, 0, 0, 1, 1)
         self.ObjecInspector.setWidget(self.dockWidgetContents)
@@ -179,5 +181,5 @@ class Ui_MainWindow(object):
         self.actionWidget_Box.setText(_translate("MainWindow", "Widget Box"))
         self.actionObject_Inspector.setText(_translate("MainWindow", "Object Inspector"))
         self.actionProperty_Editor.setText(_translate("MainWindow", "Property Editor"))
-
 from LVGLSimulator import LVGLSimulator
+from LVGLTreeViewItem import LVGLTreeView

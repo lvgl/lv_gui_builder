@@ -1,9 +1,24 @@
 # LittlevGL Tree View Item subclass
 
-from PyQt5.QtWidgets import QTreeWidgetItem
+from PyQt5.QtWidgets import QTreeWidgetItem, QTreeWidget
+from PyQt5.QtCore import Qt
 import lvgl
 from utils import get_full_class_name, children_of, address_of
 
+
+class LVGLTreeView(QTreeWidget):
+
+    def __init__(self, contents):
+        super().__init__(contents)
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Delete:
+            #self.takeTopLevelItem(self.indexOfTopLevelItem(
+            print("deleting object...")
+            self.itemFromIndex(self.currentIndex()).get_lv_obj().del_()
+            regenerate_lv_treeview(self)
+            
+        super().keyPressEvent(event)
 
 class LVGLTreeViewItem(QTreeWidgetItem):
 
@@ -19,6 +34,13 @@ class LVGLTreeViewItem(QTreeWidgetItem):
 
         super().__init__(parent, type=LVGLTreeViewItem.user_types[obj_class_name])
 
+    def __del__(self):
+        #self.lv_obj.del_()
+        pass
+
+    def keyPressEvent(self, event):
+        print(event.key())
+        
     def get_lv_obj(self):
         return self.lv_obj
 

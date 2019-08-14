@@ -6,6 +6,8 @@ from PyQt5.QtCore import *
 import lvgl
 from utils import address_of, children_of, get_absolute_position, get_full_class_name
 
+import inspect
+
 
 # Returns a list of lvgl objects under coordinates at x,y
 def get_objects_under_coords(x, y):
@@ -86,10 +88,14 @@ class LVGLSimulator(QGraphicsView):
 
         # Find out which object(s) were focused by that click and select one
         selected_item = self.select_object(get_objects_under_coords(event.pos().x(), event.pos().y()), True)
-
+        
         # Create a box around the selected item (if not None)
         # Now handled by associated treeview selection change event handler
         #self.highlight_selected(selected_item)
+
+        # Get the offset of the mouse click from the object's top-left corner (actual position)
+        for m in inspect.getmembers(selected_item):
+            print(m)
 
         # Call the application handler
         if self.new_selection_cb:

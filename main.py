@@ -51,7 +51,7 @@ def main():
             property_type = arg_list[0]
             # Create the associated widget for
             # editing this property type
-            print("{} - {}".format(p, arg_list))
+            #print("{} - {}".format(p, arg_list))
             ctor = propertywidgets.get_associated_widget(property_type)
             property_widget = ctor(setter, current_val, None)
             window.property_tree.setItemWidget(tv_item, 1, property_widget)
@@ -78,8 +78,27 @@ def main():
         window.LVGLSimWindow.set_selected(selected_item)
         populate_properties(selected_item)
 
+    def tv_keyevent(key):
+        pass
+
+
+    # Called when an item in the widgets list is double clicked
+    def widget_dbl_clicked(item):
+        curr_selected = window.object_tree.currentItem()
+        # Select the base screen by default
+        if not curr_selected:
+            curr_selected = window.object_tree.itemAt(0,0)
+        
+        # Create a new object with the selected item as the parent
+        # TODO - fix this for when the entry labels are not the same as the lvgl class name
+        new_obj = eval("lvgl.{}(curr_selected.get_lv_obj())".format(item.text()))
+        regenerate_lv_treeview(window.object_tree)
+
+            
+    # Connect callback handlers
     window.LVGLSimWindow.set_new_selection_cb(new_selection_cb)
     window.object_tree.selectionModel().selectionChanged.connect(tv_selection_changed)
+    window.listWidget.itemDoubleClicked.connect(widget_dbl_clicked)
 
     populate_widget_box(window)
 

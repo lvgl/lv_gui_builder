@@ -152,7 +152,7 @@
    <widget class="QWidget" name="dockWidgetContents">
     <layout class="QGridLayout" name="gridLayout_3">
      <item row="0" column="0">
-      <widget class="QTreeWidget" name="object_tree">
+      <widget class="LVGLTreeView" name="object_tree">
        <column>
         <property name="text">
          <string>Object</string>
@@ -318,6 +318,11 @@
    <class>LVGLSimulator</class>
    <extends>QGraphicsView</extends>
    <header>LVGLSimulator.h</header>
+  </customwidget>
+  <customwidget>
+   <class>LVGLTreeView</class>
+   <extends>QTreeWidget</extends>
+   <header>LVGLTreeViewItem.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
